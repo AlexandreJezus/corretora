@@ -1,89 +1,79 @@
 const prompt = require("prompt-sync")();
 
-const corretoras = [];
+const db = [];
 
-const lerIndice = (mensagem) => parseInt(prompt(mensagem));
+let proxId = 1;
 
-const nomeInvalido = (nome) => nome == "";
-
-const indiceInvalido = (indice) =>
-  indice < 0 || indice >= corretoras.length || isNaN(indice);
-
-const listagemCorretora = () =>
-  corretoras.forEach((corretora, i) => {
-    console.log(`${i + 1} - ${corretora.nome}`);
-  });
-
-const modeloCorretora = () => {
-  let corretora = {};
-
-  while (true) {
-    corretora.nome = prompt("Qual é o nome da corretora? ");
-    if (nomeInvalido(corretora)) {
-      console.log("O nome não pode ser vazio");
-    } else {
-      break;
-    }
+const model = (id = proxId++) => {
+  const nome = prompt("Nome: ");
+  if (nome != "") {
+    return {
+      id,
+      nome,
+    };
   }
-  return corretora;
+  console.log("Dados inválidos.");
 };
 
-const criarCorretora = () => {
-  const corretora = modeloCorretora();
+const store = () => {
+  const novo = model();
 
-  corretoras.push(corretora);
+  if (novo) {
+    db.push.apply(novo);
 
-  console.log("Corretora adicionada com sucesso.");
-};
-
-const atualizarCorretora = () => {
-  while (true) {
-    if (corretoras.length == 0) {
-      console.log("Lista de corretoras esta vazia.");
-      break;
-    }
-
-    listagemCorretora();
-
-    const indice =
-      lerIndice("Qual o ID de corretora que deseja atualizar? ") - 1;
-
-    if (indiceInvalido(indice)) {
-      console.log("Indice inválido");
-    } else {
-      const corretora = modeloCorretora();
-      corretoras[indice] = corretora;
-      break;
-    }
+    console.log("Registro concluído com sucesso.");
+    proxId--;
   }
 };
 
-const removerCorretora = () => {
-  while (true) {
-    listagemCorretora();
-
-    const indice =
-      lerIndice("Qual é o ID de corretora que deseja remover? ") - 1;
-
-    if (indiceInvalido(indice)) {
-      console.log("Indice inválido");
-    } else {
-      corretoras.forEach((corretora) => {
-        if (corretora.sequencia == indice) {
-          corretora.sequencia = -1;
-        }
-      });
-      corretoras.splice(indice, 1);
-      console.log("Corretora removida com sucesso");
-      break;
-    }
+const index = () => {
+  if (db.length == 0) {
+    console.log("Nenhum registro encontrado.");
+    return false;
   }
+  db.forEach((el) => console.log(el));
+  return true;
 };
 
+const show = (id) => db.find((el) => el.id == id);
+
+const update = () => {
+  if (index()) {
+    const id = parseInt(prompt("ID: "));
+
+    const indice = db.findIndex((el) => el.id == id);
+
+    if (indice != -1) {
+      const novo = model(id)
+
+      if(novo) {
+        db(indice) = novo
+        console.log("Registro atualizado com sucesso.");
+      }
+    } else {
+      console.log("Registro não encontrado.")
+    }
+    }
+  }
+
+const destroy = () => {
+  if (index()) {
+    const id = parseInt(prompt("ID: "));
+
+    const indice = db.findIndex(el => el.id == id);
+
+    if (indice != -1) {
+      db.splice(indice, 1);
+      console.log("Registro excluido com sucesso.")
+    } else {
+      console.log("Registro não encontrado")
+    }
+  }
+}
 module.exports = {
-  modeloCorretora,
-  criarCorretora,
-  listagemCorretora,
-  atualizarCorretora,
-  removerCorretora,
-};
+  store,
+  index,
+  show,
+  update,
+  destroy,
+}
